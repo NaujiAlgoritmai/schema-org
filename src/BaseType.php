@@ -6,6 +6,7 @@ use DateTime;
 use ReflectionClass;
 use DateTimeInterface;
 use Spatie\SchemaOrg\Exceptions\InvalidProperty;
+use Symfony\Component\Yaml\Yaml;
 
 abstract class BaseType implements Type, \ArrayAccess, \JsonSerializable
 {
@@ -111,7 +112,17 @@ abstract class BaseType implements Type, \ArrayAccess, \JsonSerializable
 
     public function toScript(): string
     {
-        return '<script type="application/ld+json">'.json_encode($this->toArray(), JSON_UNESCAPED_UNICODE).'</script>';
+        return '<script type="application/ld+json">'.json_encode($this->toArray()).'</script>';
+    }
+
+    public function toArrayWithoutContext(): array
+    {
+        return $this->serializeProperty($this->getProperties());
+    }
+
+    public function toYaml(): string
+    {
+        return Yaml::dump($this->toArrayWithoutContext(), false);
     }
 
     public function jsonSerialize()
